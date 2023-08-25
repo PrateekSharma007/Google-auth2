@@ -23,12 +23,12 @@ passport.use(new GoogleStrategy({
     passReqToCallback: true
 }, async (request, accessToken, refreshToken, profile, done) => {
     try {
-        const User = await user.findOne({ email: profile.emails[0].value });
-        if (User) {
-            return done(null, User);
+        const existingUser = await user.findOne({ email: profile.emails[0].value });
+        if (existingUser) {
+            return done(null, existingUser);
         }
         const newUser = new user({
-            method: 'google',
+            // method: 'google',
             email: profile.emails[0].value
         });
 
@@ -39,24 +39,42 @@ passport.use(new GoogleStrategy({
     }
 }));
 
+passport.serializeUser(function(user, cb){
+    cb(null, user);
+});
 
-passport.serializeUser(function(user,cb){
-    cb(null,user)
-})
-
-passport.deserializeUser(function(object,cb){
-    cb(null,object)
-})
-
+passport.deserializeUser(function(object, cb){
+    cb(null, object);
+});
 
 app.get("/", (req, res) => {
     res.send("Welcome to google auth");
-}); 
+});
 
 app.get("/auth/google", passport.authenticate('google', { scope: ["email", "profile"] }));
 
-app.get("/auth/google/callback", passport.authenticate('google', { session: false }), (req, res) => {
-    res.send("User login successful");
+app.get("/auth/google/callback", passport.authenticate('google', { failureRedirect: "/auth/failure" }), async (req, res) => {
+    res.redirect("/check-registration");
+});
+
+app.get("/auth/failure", (req, res) => {
+    res.send("User login failed");
+});
+
+// Check if the user is registered
+app.get("/check-registration", async (req, res) => {
+    if (req.isAuthenticated()) {
+        const userEmail = req.user.email;
+        const existingUser = await user.findOne({ email: userEmail });
+
+        if (existingUser) {
+            res.send("User is registered.");
+        } else {
+            res.send("User is not registered.");
+        }
+    } else {
+        res.send("Not authenticated.");
+    }
 });
 
 app.listen(3000, () => {
