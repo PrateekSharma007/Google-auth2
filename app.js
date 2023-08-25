@@ -4,6 +4,7 @@ const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const user = require("./db/schema");
+const connection = require("./db/db")
 require("dotenv").config();
 
 app.use(session({
@@ -34,6 +35,7 @@ passport.use(new GoogleStrategy({
         });
 
         await newUser.save();
+        console.log(newUser)
         return done(null, newUser);
     } catch (error) {
         return done(error, false);
@@ -77,6 +79,22 @@ app.get("/check-registration", async (req, res) => {
         res.send("Not authenticated.");
     }
 });
+app.get("/logout", async (req, res) => {
+   
+    const userEmail = req.user.email;
+        const existingUser = await user.findOne({ email: userEmail });
+
+        if (existingUser) {
+            existingUser.deleteOne({email : userEmail}) ;
+            res.send("log ot successful")
+    
+    } else {
+        
+        res.send("You are not logged in");
+    }
+});
+
+
 
 app.listen(3000, () => {
     console.log("Port 3000 is working");
