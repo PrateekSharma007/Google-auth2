@@ -4,8 +4,13 @@ const passport = require("passport");
 const user = require("./db/schema");
 const db = require("./db/db");
 const session = require("express-session");
+const jwt = require("jsonwebtoken")
 require("dotenv").config();
 require("./passport")
+
+
+app.use(express.json()) ; 
+app.use(express.urlencoded({extended : true}));
 
 
 
@@ -53,11 +58,23 @@ app.get("/check-registration", async (req, res) => {
     if (req.isAuthenticated()) {
         const userEmail = req.user.email;
         const existingUser = await user.findOne({ email: userEmail });
-        console.log(existingUser)
-        console.log(userEmail)
+        // console.log(existingUser)
+        // console.log(userEmail)
 
         if (existingUser) {
-            res.send("login successfull.");
+            const payload = {
+                email : userEmail , 
+                id : existingUser.id ,
+            }
+            const token = jwt.sign(payload, "Rnadom key", {expiresIn : "1h"}) ;
+
+            return res.status(200).send({
+                success: true,
+                message : "Logged in" , 
+                token : token 
+            })
+
+
         } else {
             res.send("User is not registered.");
         }
