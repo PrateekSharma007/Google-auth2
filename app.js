@@ -12,9 +12,10 @@ require("dotenv").config();
 app.use(session({
     secret: "key",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: { secure: false }
 }));
+
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -64,7 +65,7 @@ app.get("/", (req, res) => {
     res.send("Welcome to google auth");
 });
 
-app.get("/auth/google", passport.authenticate('google', { scope: ["email", "profile"] }));
+app.get('/auth/google', passport.authenticate('google', {scope: ['profile', 'email'], prompt: 'select_account'}));
 
 app.get("/auth/google/callback", passport.authenticate('google', { failureRedirect: "/auth/failure" }), (req, res) => {
 
@@ -94,21 +95,29 @@ app.get("/check-registration", async (req, res) => {
 
 
 
-// app.post('/logout', function(req, res, next) {
-//     req.logout(function(err) {
-//       if (err) { return next(err); }
-//       res.redirect('/');
-//     });
-//   });
-  
-
-  app.get('/logout', function(req, res, next) {
+app.post('/logout', function(req, res, next) {
     req.logout(function(err) {
       if (err) { return next(err); }
       res.redirect('/');
     });
   });
   
+
+//   app.get('/logout', function(req, res, next) {
+//     req.logout(function(err) {
+//       if (err) { return next(err); }
+//       console.log(req.session)
+//       req.session = null ;
+//       res.redirect('/');
+//     });
+
+//   });
+
+// app.get("/logout" , function(req,res) => { 
+//     rew
+// })
+
+  //current user khud ki api
 app.listen(3000, () => {
     console.log("Port 3000 is working");
 });
