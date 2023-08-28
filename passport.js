@@ -4,8 +4,6 @@ const db = require("./db/db")
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 require("dotenv").config() ;
 
-app.use(express.json()) ; 
-app.use(express.urlencoded({extended : true}));
 
 
 
