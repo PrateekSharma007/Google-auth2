@@ -4,7 +4,7 @@ const session = require("express-session");
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const user = require("./db/schema");
-const connection = require("./db/db")
+const connection = require("./db/db");
 require("dotenv").config();
 
 app.use(session({
@@ -30,7 +30,7 @@ passport.use(new GoogleStrategy({
             return done(null, existingUser);
         }
         const newUser = new user({
-            // method: 'google',
+            
             email: profile.emails[0].value
         });
 
@@ -42,12 +42,17 @@ passport.use(new GoogleStrategy({
     }
 }));
 
-passport.serializeUser(function(user, cb){
-    cb(null, user);
+passport.serializeUser((user, cb) => {
+    cb(null, user._id); 
 });
 
-passport.deserializeUser(function(object, cb){
-    cb(null, object);
+passport.deserializeUser(async (id, cb) => {
+    try {
+        const existingUser = await user.findById(id);
+        cb(null, existingUser);
+    } catch (error) {
+        cb(error, null);
+    }
 });
 
 app.get("/", (req, res) => {
@@ -56,7 +61,8 @@ app.get("/", (req, res) => {
 
 app.get("/auth/google", passport.authenticate('google', { scope: ["email", "profile"] }));
 
-app.get("/auth/google/callback", passport.authenticate('google', { failureRedirect: "/auth/failure" }), async (req, res) => {
+app.get("/auth/google/callback", passport.authenticate('google', { failureRedirect: "/auth/failure" }), (req, res) => {
+    // Authentication successful, redirect to check-registration
     res.redirect("/check-registration");
 });
 
@@ -64,14 +70,13 @@ app.get("/auth/failure", (req, res) => {
     res.send("User login failed");
 });
 
-// Check if the user is registered
 app.get("/check-registration", async (req, res) => {
     if (req.isAuthenticated()) {
         const userEmail = req.user.email;
         const existingUser = await user.findOne({ email: userEmail });
 
         if (existingUser) {
-            res.send("User is registered.");
+            res.send("login successfull.");
         } else {
             res.send("User is not registered.");
         }
@@ -79,22 +84,28 @@ app.get("/check-registration", async (req, res) => {
         res.send("Not authenticated.");
     }
 });
-app.get("/logout", async (req, res) => {
-   
-    const userEmail = req.user.email;
-        const existingUser = await user.findOne({ email: userEmail });
 
-        if (existingUser) {
-            existingUser.deleteOne({email : userEmail}) ;
-            res.send("log ot successful")
-    
-    } else {
-        
-        res.send("You are not logged in");
+app.get("/logout", async (req, res) => {
+    try {
+        if (req.isAuthenticated()) {
+            const userEmail = req.user.email;
+            const existingUser = await user.findOne({ email: userEmail });
+
+            if (existingUser) {
+                await existingUser.deleteOne({ email: userEmail });
+                req.logout();
+                res.send("Logged out and deleted user");
+            } else {
+                res.send("User not found");
+            }
+        } else {
+            res.send("You are not logged in");
+        }
+    } catch (error) {
+        console.error("An error occurred:", error);
+        res.status(500).send("An error occurred");
     }
 });
-
-
 
 app.listen(3000, () => {
     console.log("Port 3000 is working");
