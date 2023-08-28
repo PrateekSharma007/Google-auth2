@@ -1,23 +1,12 @@
 const passport = require("passport") ; 
 const user = require("./db/schema")
 const db = require("./db/db")
-const session = require("express-session");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 require("dotenv").config() ;
 
 
 
 
-app.use(session({
-    secret: "key",
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }
-}));
-
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 passport.serializeUser((user, cb) => {
     cb(null, user._id); 

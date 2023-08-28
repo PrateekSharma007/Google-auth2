@@ -3,7 +3,23 @@ const app = express();
 const passport = require("passport");
 const user = require("./db/schema");
 const db = require("./db/db");
+const session = require("express-session");
 require("dotenv").config();
+require("./passport")
+
+
+
+
+app.use(session({
+    secret: "key",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+}));
+
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 //start
 
