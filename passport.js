@@ -4,6 +4,27 @@ const db = require("./db/db")
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 require("dotenv").config() ;
 
+var JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJwt = require('passport-jwt').ExtractJwt;
+var opts = {}
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();//key extract karega ye 
+opts.secretOrKey = 'random key';
+console.log("h1")
+passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+    user.findOne({id: jwt_payload.sub}, function(err, user) {
+        console.log(jwt_payload)
+        // if (err) {
+        //     return done(err, false);
+        // }
+        // if (user) {
+        //     return done(null, user);
+        // } else {
+        //     return done(null, false);
+           
+        // }
+    });
+}));
+
 
 
 
@@ -45,3 +66,6 @@ passport.use(new GoogleStrategy({
         return done(error, false);
     }
 }));
+
+
+module.exports = passport;

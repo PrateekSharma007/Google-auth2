@@ -66,12 +66,12 @@ app.get("/check-registration", async (req, res) => {
                 email : userEmail , 
                 id : existingUser.id ,
             }
-            const token = jwt.sign(payload, "Rnadom key", {expiresIn : "1h"}) ;
+            const token = jwt.sign(payload, "Random key", {expiresIn : "1h"}) ;
 
             return res.status(200).send({
                 success: true,
                 message : "Logged in" , 
-                token : token 
+                token :"Bearer " +token 
             })
 
 
@@ -94,6 +94,12 @@ app.post('/logout', function(req, res, next) {
     });
   });
   
+
+//protected route
+
+app.get("/protected" , passport.authenticate('jwt' , {session : false} ), (req,res) => {
+    res.send("This is a protected route")
+})
 
 
 app.listen(3000, () => {
