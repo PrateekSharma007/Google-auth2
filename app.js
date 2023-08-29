@@ -64,7 +64,7 @@ app.get("/check-registration", async (req, res) => {
         if (existingUser) {
             const payload = {
                 email : userEmail , 
-                id : existingUser.id ,
+                // id : existingUser.id ,
             }
             const token = jwt.sign(payload, "Random key", {expiresIn : "1h"}) ;
 
@@ -98,7 +98,13 @@ app.post('/logout', function(req, res, next) {
 //protected route
 
 app.get("/protected" , passport.authenticate('jwt' , {session : false} ), (req,res) => {
-    res.send("This is a protected route")
+    return res.status(200).send({
+        success : true , 
+        user : { 
+            email : req.user.email,
+            id : req.user.id 
+        }
+    })
 })
 
 
