@@ -13,7 +13,7 @@ console.log("h1")
 passport.use(new JwtStrategy(opts, async (jwt_payload, done) => {
     try {
         const foundUser = await user.findOne({ email: jwt_payload.email });
-        // console.log(jwt_payload)
+        console.log(jwt_payload)
         // console.log(jwt_payload.email)
         
         if (foundUser) {
