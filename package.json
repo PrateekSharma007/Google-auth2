@@ -21,6 +21,7 @@
     "nodemon": "^3.0.1",
     "passport": "^0.6.0",
     "passport-google-oauth20": "^2.0.0",
-    "passport-jwt": "^4.0.1"
+    "passport-jwt": "^4.0.1",
+    "passport-oauth2-jwt-bearer": "^0.2.0"
   }
 }
