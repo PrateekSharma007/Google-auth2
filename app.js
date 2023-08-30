@@ -63,6 +63,45 @@ app.post('/logout', function(req, res, next) {
 });
 
 
+
+
+
+//facebook 
+
+
+app.get('/auth/facebook', passport.authenticate('facebook', {
+  scope: ['public_profile', 'email']
+}));
+
+
+app.get('/auth/facebook/callback',
+  passport.authenticate('facebook', {
+    successRedirect: '/profile',
+    failureRedirect: '/error'
+  }));
+
+
+app.get("/profile" ,(req,res)=>{
+  try {
+    if (req.isAuthenticated()) {
+        const token = req.cookies.jwt;
+        console.log(token)
+        res.json({ authenticated: true, token });
+      } else {
+        res.json({ authenticated: false });
+      }
+  } catch (error) {
+  console.error("An error occurred:", error);
+  res.status(500).send("Internal Server Error");
+  }
+  ;})
+
+
+
+
+
+
+
 app.listen(3000, () => {
     console.log("Port 3000 is working");
 });
