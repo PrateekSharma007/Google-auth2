@@ -54,6 +54,15 @@ app.get("/protected" , (req,res) => {
 app.get("/failure" , (req,res) => { 
     res.send("login failed")
 })
+
+app.post('/logout', function(req, res, next) {
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    res.redirect('/');
+  });
+});
+
+
 app.listen(3000, () => {
     console.log("Port 3000 is working");
 });
