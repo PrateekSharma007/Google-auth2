@@ -21,81 +21,83 @@ passport.deserializeUser(async (id, cb) => {
         cb(error, null);
     }
 });
-passport.use(new GoogleStrategy({
-    clientID: process.env.Client_id,
-    clientSecret: process.env.Client_secret_key,
-    callbackURL: "http://localhost:3000/auth/google/callback",
-    passReqToCallback: true
-}, async (request, accessToken, refreshToken, profile, done) => {
-    try {
-        const existingUser = await User.findOne({ googleId: profile.id });
+// passport.use(new GoogleStrategy({
+//     clientID: process.env.Client_id,
+//     clientSecret: process.env.Client_secret_key,
+//     callbackURL: "http://localhost:3000/auth/google/callback",
+//     passReqToCallback: true
+// }, async (request, accessToken, refreshToken, profile, done) => {
+//     try {
+//         const existingUser = await User.findOne({ googleId: profile.id });
 
+//         if (existingUser) {
+//             // const token = jwt.sign({ userId: existingUser._id }, 'your-secret-key');
+//             // console.log(token  + "token")
+//             // request.res.cookie('jwt', token, { httpOnly: true });
+//             return done(null, existingUser);
+//         }
+
+//         const newUser = new User({
+//             googleId: profile.id
+//         });
+
+//         // Save the new user
+//         await newUser.save();
+
+//         // Generate JWT token with user's _id
+//         // const token = jwt.sign({ userId: newUser._id }, 'your-secret-key');
+//         // console.log(token , + "token")
+
+//         // Set the token as a cookie
+//         // request.res.cookie('jwt', token, { httpOnly: true });
+
+//         console.log(newUser);
+//         return done(null, newUser);
+//     } catch (error) {
+//         return done(error, false);
+//     }
+// }));
+
+
+
+passport.use(new FacebookStrategy({
+    clientID: fbconfig.facebookAuth.client_id, 
+    clientSecret: fbconfig.facebookAuth.clientsecret,
+    callbackURL: fbconfig.facebookAuth.callback,  
+    enableProof: true  
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        console.log(profile);
+        const existingUser = await User.findOne({ googleId: profile.id });
+        console.log("her1");
+        
         if (existingUser) {
             const token = jwt.sign({ userId: existingUser._id }, 'your-secret-key');
-            console.log(token , + "token")
-            request.res.cookie('jwt', token, { httpOnly: true });
-            return done(null, existingUser);
+            console.log(token + " token");
+
+            // Set the token as a cookie in the response
+            done(null, existingUser, { token });
+        } else {
+            console.log("her2");
+            const newUser = new User({
+                googleId: profile.id
+            });
+
+            // Save the new user
+            await newUser.save();
+
+            // JWT token
+            const token = jwt.sign({ userId: newUser._id }, 'your-secret-key');
+            console.log(token + " token");
+
+            // Set the token as a cookie in the response
+            done(null, newUser, { token });
         }
-
-        const newUser = new User({
-            googleId: profile.id
-        });
-
-        // Save the new user
-        await newUser.save();
-
-        // Generate JWT token with user's _id
-        const token = jwt.sign({ userId: newUser._id }, 'your-secret-key');
-        console.log(token , + "token")
-
-        // Set the token as a cookie
-        request.res.cookie('jwt', token, { httpOnly: true });
-
-        console.log(newUser);
-        return done(null, newUser);
     } catch (error) {
         return done(error, false);
     }
 }));
 
-
-
-passport.use(new FacebookStrategy({
-
-    clientID : fbconfig.facebookAuth.client_id, 
-    clientSecret: fbconfig.facebookAuth.clientsecret,
-    callbackURL : fbconfig.facebookAuth.callback,    
-},async (request, accessToken, refreshToken, profile, done) => {
-    try {
-        const existingUser = await User.findOne({ googleId: profile.id });
-
-        if (existingUser) {
-            const token = jwt.sign({ userId: existingUser._id }, 'your-secret-key');
-            console.log(token , + "token")
-            request.res.cookie('jwt', token, { httpOnly: true });
-            return done(null, existingUser);
-        }
-
-        const newUser = new User({
-            googleId: profile.id
-        });
-
-        // Save the new user
-        await newUser.save();
-
-        // Generate JWT token with user's _id
-        const token = jwt.sign({ userId: newUser._id }, 'your-secret-key');
-        console.log(token , + "token")
-
-        // Set the token as a cookie
-        request.res.cookie('jwt', token, { httpOnly: true });
-
-        console.log(newUser);
-        return done(null, newUser);
-    } catch (error) {
-        return done(error, false);
-    }
-}))
 
 
 

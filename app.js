@@ -27,40 +27,33 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile'] }));
+// app.get('/auth/google',
+//   passport.authenticate('google', { scope: ['profile'] }));
 
-app.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/failure' ,successRedirect : "/protected"}),
+// app.get('/auth/google/callback', 
+//   passport.authenticate('google', { failureRedirect: '/failure' ,successRedirect : "/protected"}),
  
-)
-app.get("/protected" , (req,res) => {
+// )
+// app.get("/protected" , (req,res) => {
     
-        try {
-            if (req.isAuthenticated()) {
-                const token = req.cookies.jwt;
-                console.log(token)
-                res.json({ authenticated: true, token });
-              } else {
-                res.json({ authenticated: false });
-              }
-        } catch (error) {
-          console.error("An error occurred:", error);
-          res.status(500).send("Internal Server Error");
-        }
-      ;
+//         try {
+//             if (req.isAuthenticated()) {
+//                 const token = req.cookies.jwt;
+//                 console.log(token)
+//                 res.json({ authenticated: true, token });
+//               } else {
+//                 res.json({ authenticated: false });
+//               }
+//         } catch (error) {
+//           console.error("An error occurred:", error);
+//           res.status(500).send("Internal Server Error");
+//         }
+//       ;
       
-})
-app.get("/failure" , (req,res) => { 
-    res.send("login failed")
-})
-
-app.post('/logout', function(req, res, next) {
-  req.logout(function(err) {
-    if (err) { return next(err); }
-    res.redirect('/');
-  });
-});
+// })
+// app.get("/failure" , (req,res) => { 
+//     res.send("login failed")
+// })
 
 
 
@@ -69,9 +62,12 @@ app.post('/logout', function(req, res, next) {
 //facebook 
 
 
-app.get('/auth/facebook', passport.authenticate('facebook', {
-  scope: ['public_profile', 'email']
-}));
+app.get("/",(req,res) =>{
+  res.send("ok")
+
+})
+
+app.get('/auth/facebook', passport.authenticate('facebook'));
 
 
 app.get('/auth/facebook/callback',
@@ -86,7 +82,7 @@ app.get("/profile" ,(req,res)=>{
     if (req.isAuthenticated()) {
         const token = req.cookies.jwt;
         console.log(token)
-        res.json({ authenticated: true, token });
+        res.json({ authenticated: true });
       } else {
         res.json({ authenticated: false });
       }
@@ -99,8 +95,14 @@ app.get("/profile" ,(req,res)=>{
 
 
 
-
-
+  app.post('/logout', function(req, res, next) {
+    req.logout(function(err) {
+      if (err) { return next(err); }
+      res.redirect('/');
+    });
+  });
+  
+  
 
 app.listen(3000, () => {
     console.log("Port 3000 is working");
