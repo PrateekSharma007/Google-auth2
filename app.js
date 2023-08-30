@@ -5,6 +5,8 @@ const db = require("./db/schema")
 const session = require("express-session")
 const passport = require("passport")
 const cookieparser = require("cookie-parser")
+const movie = require("./db/schemaapi")
+// const gettingdata = require('./container/api')
 require("./passport")
 
 
@@ -102,6 +104,27 @@ app.get("/profile" ,(req,res)=>{
     });
   });
   
+
+
+async function getdata() { 
+    const data =  await fetch('https://jsonplaceholder.typicode.com/posts') ;
+    const response = await data.json();
+    // console.log(response) ;
+    for(let i = 0 ;i<response.length;i++){
+      // console.log(response[i][) ;
+      const data = new movie({
+        userId : response[i]['userId'],
+        id : response[i]['id'],
+        title : response[i]['userId'],
+        body : response[i]['userId'],
+        // userId : response[i]['userId']
+
+      })
+      await data.save() ;
+      console.log("data saved")
+    }
+}
+getdata();
   
 
 app.listen(3000, () => {
